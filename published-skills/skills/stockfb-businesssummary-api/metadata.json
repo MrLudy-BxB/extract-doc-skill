@@ -1,9 +1,0 @@
-{
-  "name": "stockfb-businesssummary-api",
-  "displayName": "StockFB BusinessSummary API",
-  "description": "Source-grounded skill for StockFB BusinessSummary sale order summary and product claim detail API endpoints extracted from a user-provided workbook.",
-  "version": "0.1.0",
-  "generatedAt": "2026-05-19T18:47:00Z",
-  "license": "Source workbook provided by user; redistribution terms not specified.",
-  "entrypoint": "SKILL.md"
-}

@@ -1,0 +1,9 @@
+{
+  "name": "<skill-name>",
+  "displayName": "<Skill Display Name>",
+  "description": "<source-grounded skill description>",
+  "version": "0.1.0",
+  "generatedAt": "<ISO timestamp>",
+  "license": "<source/licensing note>",
+  "entrypoint": "SKILL.md"
+}

@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+
+# Keep generated project work out unless intentionally committed.
+# Completed examples can be force-added or copied into published-skills when needed.
+projects/*
+!projects/.gitkeep
+
+published-skills/skills/*
+!published-skills/skills/.gitkeep

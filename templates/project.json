@@ -1,0 +1,17 @@
+{
+  "projectId": "example-api",
+  "displayName": "Example API",
+  "skillName": "example-api",
+  "sources": [],
+  "boundaries": {
+    "allow": [],
+    "deny": []
+  },
+  "taxonomy": [],
+  "package": {
+    "description": "",
+    "shortDescription": "",
+    "version": "0.1.0"
+  },
+  "notes": []
+}
