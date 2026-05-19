@@ -1,370 +1,293 @@
-# Engine Blueprint
+# Project Engine Blueprint
 
-This document explains the core thinking behind the Extract Doc Skill engine and how to recreate the same pattern for other docs-to-skill workflows.
+This file explains how to design a new project engine.
 
-## Purpose
+A project engine is a repo that guides an AI agent from messy input to a clean final output.
 
-The engine turns messy source documentation into a clean, installable AI-agent skill.
+## The Simple Idea
 
-The main idea is not scraping. The main idea is controlled transformation:
+Every engine needs one clear transformation:
 
 ```text
-source evidence
-→ mapped sources
-→ cleaned source-equivalent docs
-→ categorized references
-→ routing indexes
-→ final installable skill
+input → process → output
 ```
 
-Each stage has a clear folder, clear responsibility, and clear validation rules.
+Examples:
 
-## Core Thinking
+```text
+docs → installable AI skill
+research notes → cited report
+brand notes → design system
+codebase → audit and patch plan
+course material → publishable course
+```
 
-### 1. Separate Evidence From Product
+If you cannot describe the transformation in one line, the engine is not clear yet.
 
-Raw source files are evidence. They are not the final product.
+## Core Questions
 
-Keep raw inputs, extraction logs, scripts, and notes inside `workflow/`. The final skill should contain only clean, useful, portable files.
+Before building any engine, answer these:
 
-This prevents a skill from shipping with:
+1. What does the user give the agent?
+2. What should the agent produce?
+3. What work steps must happen in order?
+4. What files are temporary work?
+5. What files are final output?
+6. What must never be published?
+7. How do we know the output is done?
 
-- private local paths
-- raw credentials
-- scrape noise
-- unfinished drafts
-- giant raw source dumps
-- temporary workflow artifacts
+## Standard Engine Shape
 
-### 2. Plan Before Extraction
+Use this structure for most engines:
 
-The engine requires a project plan before scraping or converting anything.
+```text
+<engine-repo>/
+├── README.md
+├── AGENTS.md
+├── AGENT_KICKSTART.md
+├── ENGINE.md
+├── docs/
+├── templates/
+├── projects/
+└── published-output/
+```
 
-The plan defines:
+## File Roles
+
+### `README.md`
+
+For humans.
+
+Keep it short:
+
+```text
+clone repo
+open with AI agent
+tell agent to read AGENT_KICKSTART.md
+give source/input
+ask agent to create output
+```
+
+### `AGENTS.md`
+
+Short instruction file for AI agents.
+
+It should say:
+
+- what this engine does
+- what to read first
+- required folder shape
+- non-negotiable rules
+
+### `AGENT_KICKSTART.md`
+
+Full workflow for AI agents.
+
+It should explain:
+
+- mission
+- standard process
+- folder rules
+- naming rules
+- safety rules
+- validation rules
+- publishing rules
+
+### `ENGINE.md`
+
+Blueprint for engine designers.
+
+It explains how to build another engine using the same pattern.
+
+### `docs/`
+
+Detailed phase guides.
+
+Use docs like:
+
+```text
+00-big-picture.md
+01-project-start.md
+02-source-mapping.md
+03-collection.md
+04-processing.md
+05-final-building.md
+06-validation-publishing.md
+troubleshooting.md
+```
+
+### `templates/`
+
+Reusable file templates.
+
+Good templates reduce agent drift.
+
+Examples:
+
+```text
+PROJECT_PLAN.md
+project.json
+README.md
+final-output.md
+validation-report.md
+```
+
+### `projects/`
+
+Generated project work.
+
+Usually ignored by Git except `.gitkeep`.
+
+### `published-output/`
+
+Optional clean exported output.
+
+Only use this when the user explicitly asks to publish or export.
+
+## Engine Workflow Pattern
+
+Most engines follow this pattern:
+
+```text
+plan
+→ map input
+→ collect raw evidence
+→ clean/process
+→ organize/categorize
+→ build final output
+→ validate
+→ optionally publish
+```
+
+For each step, create a matching folder or report so progress is visible.
+
+## Folder State Pattern
+
+Use folders as workflow states:
+
+```text
+workflow/sources/
+workflow/raw/
+workflow/cleaned/
+workflow/categorized/
+workflow/indexes/
+workflow/drafts/
+workflow/reports/
+workflow/notes/
+final-output/
+```
+
+The exact names can change, but the rule stays the same:
+
+```text
+messy work stays in workflow/
+clean product goes in final-output/
+```
+
+## Project Plan
+
+Every engine should require a project plan before work starts.
+
+The plan should define:
 
 - objective
-- allowed sources
-- out-of-scope sources
+- input sources
+- out-of-scope items
 - expected source structure
-- final skill name
-- categorization strategy
+- final output name
+- processing strategy
 - validation checklist
+- open questions
 
-This prevents uncontrolled collection and keeps the final skill focused.
+The plan prevents random work.
 
-### 3. Map Sources Before Collecting
+## Boundary Rule
 
-Before collecting content, inspect source boundaries.
+Always separate work files from final files.
 
-For example:
+Final output should not contain:
 
-- Which docs pages matter?
-- Which workbook sheets matter?
-- Which API groups exist?
-- Which files are source-of-truth?
-- Which sources are skipped?
-- Which source names are public URLs vs local/private portable names?
+- raw secrets
+- private notes
+- local machine paths
+- temporary scripts
+- logs
+- unreviewed drafts
+- irrelevant source dumps
 
-Source mapping is the bridge between messy input and traceable output.
+## Traceability Rule
 
-### 4. Preserve Meaning While Cleaning
-
-Cleaning means removing noise and formatting content into readable Markdown/JSON without changing meaning.
-
-Do not invent missing behavior.
-Do not silently fix ambiguous docs.
-Do not turn uncertainty into certainty.
-
-If the source is unclear, record the limitation.
-
-### 5. Categorize By Use, Not By Raw Chunks
-
-A useful skill is not a dump of scraped pages.
-
-References should be organized by how an agent will answer questions:
-
-- endpoint
-- feature
-- concept
-- workflow
-- request fields
-- response fields
-- errors
-- authentication
-- operational notes
-
-The goal is fast lookup and accurate answers.
-
-### 6. Build Routing Indexes
-
-Agents need compact maps before reading long references.
-
-Useful indexes include:
-
-- topic index
-- endpoint index
-- concept index
-- source index
-- skill-reference index
-- taxonomy
-
-These indexes help agents route a question to the right reference file.
-
-### 7. Package A Portable Skill
-
-The final skill must work outside the engine repo.
-
-A complete skill package should include:
+The final output should be able to answer:
 
 ```text
-README.md
-SKILL.md
-metadata.json
-references/INDEX.md
-references/by-topic/
-references/data/
-references/reports/
+Where did this come from?
 ```
 
-`README.md` is for humans.
+Traceability can use:
 
-`SKILL.md` is for agents.
+- source URL
+- source filename
+- source ID
+- sheet name
+- section name
+- evidence note
+- report link
 
-`references/` contains the actual source-grounded knowledge.
+Use portable source names for local/private sources.
 
-### 8. Validate Before Publishing
+Do not ship absolute local paths.
 
-Validation checks that the final skill is clean, traceable, and portable.
+## Validation Rule
 
-Check for:
+Every engine needs a definition of done.
 
-- required files
-- source traceability
-- no raw workflow files
-- no absolute local paths
-- no secrets or credentials
-- no stale skill names
-- indexes pointing to real files
-- limitations documented instead of guessed
+Validation should check:
 
-Publishing is optional and should only happen when explicitly requested.
+- required final files exist
+- names are consistent
+- output is portable
+- forbidden files are absent
+- secrets are absent
+- indexes or references point to real files
+- uncertainty is documented
+- final output matches the plan
 
-## Engine Architecture
+## Publishing Rule
 
-The engine has four layers.
+Building is not publishing.
 
-### Human Layer
+Publishing should be optional and explicit.
 
-Files:
+Recommended pattern:
 
 ```text
-README.md
+projects/<project-id>/final-output/
+published-output/<output-name>/
 ```
 
-Purpose:
+Only copy to published output when requested.
 
-- tell users how to use the repo
-- keep the user workflow simple
-- point AI agents to `AGENT_KICKSTART.md`
+## How To Create A New Engine
 
-### Agent Layer
+1. Write the one-line transformation.
+2. Define the final output folder and required files.
+3. Create a short user `README.md`.
+4. Create `AGENTS.md`.
+5. Create `AGENT_KICKSTART.md`.
+6. Create phase docs under `docs/`.
+7. Create templates under `templates/`.
+8. Create empty `projects/` and `published-output/` folders.
+9. Add `.gitignore` rules for generated work.
+10. Add validation and publishing rules.
 
-Files:
+## Good Engine Test
+
+A good engine should pass this test:
 
 ```text
-AGENTS.md
-AGENT_KICKSTART.md
+Can a user clone the repo, give it to an AI agent, provide source material, and get the same kind of clean output every time?
 ```
 
-Purpose:
+If yes, it is an engine.
 
-- define agent behavior
-- define folder discipline
-- define source and safety rules
-- route agents to the correct guide
-
-### Guide Layer
-
-Files:
-
-```text
-docs/
-```
-
-Purpose:
-
-- describe each phase in detail
-- keep long instructions out of `README.md`
-- make the engine repeatable
-
-Guide phases:
-
-```text
-00 big picture
-01 project start
-02 source mapping
-03 raw collection
-04 clean and categorize
-05 skill building
-06 validation and publishing
-troubleshooting
-```
-
-### Template Layer
-
-Files:
-
-```text
-templates/
-```
-
-Purpose:
-
-- provide reusable starting points
-- enforce consistent output shape
-- reduce agent drift
-
-Templates include:
-
-- project plan
-- project config
-- project README
-- skill README
-- skill metadata
-- skill instructions
-- reference index
-
-### Work Product Layer
-
-Files:
-
-```text
-projects/
-published-skills/
-```
-
-Purpose:
-
-- `projects/` holds active extraction work
-- `published-skills/` holds optional completed shareable skills
-
-Generated work is ignored by default so the engine repo stays clean.
-
-## Key Techniques
-
-### Folder-Based State Machine
-
-Each folder represents a stage in the pipeline.
-
-```text
-workflow/sources/      source maps and boundaries
-workflow/raw/          untouched evidence
-workflow/cleaned/      cleaned source-equivalent docs
-workflow/categorized/  topic/use-case grouped material
-workflow/indexes/      lookup maps and routing data
-workflow/drafts/       pre-final skill drafts
-workflow/reports/      validation and coverage reports
-workflow/notes/        uncertainty and decisions
-skill/<skill-name>/    final clean package
-```
-
-This makes progress inspectable and prevents mixing draft work with final output.
-
-### Source Traceability
-
-Every final reference should trace back to either:
-
-- a public source URL, or
-- a portable source name for local/private sources
-
-Final skills should never depend on absolute machine paths.
-
-### Portable Naming
-
-The project folder can describe the extraction job.
-
-The skill name must describe the real product, API, feature, or use case.
-
-This prevents skills with names like:
-
-- `docs-scrape`
-- `api-version-2026`
-- `source-file-export`
-- `workbook-skill`
-
-### Human README vs Agent SKILL.md
-
-A final skill needs two different entrypoints.
-
-`README.md` answers:
-
-- What is this skill?
-- How do I install it?
-- What can I ask it?
-- What is inside the package?
-
-`SKILL.md` answers:
-
-- How should an agent use this skill?
-- Which reference should it read first?
-- Which indexes route which questions?
-- What limitations must it respect?
-
-### Reports As Quality Gates
-
-Reports are not decoration. They prove the package is ready.
-
-Useful reports:
-
-- validation report
-- coverage report
-- package report
-
-These help future agents and humans know what was checked, what was skipped, and what is still uncertain.
-
-### Optional Publishing
-
-Publishing is separate from building.
-
-A project-local final skill lives in:
-
-```text
-projects/<project-id>/skill/<skill-name>/
-```
-
-A repo-local shareable copy lives in:
-
-```text
-published-skills/skills/<skill-name>/
-```
-
-Copy to `published-skills/` only when requested.
-
-## How To Build A Similar Engine
-
-1. Create a short user `README.md`.
-2. Create a short agent entrypoint `AGENTS.md`.
-3. Create a fuller `AGENT_KICKSTART.md`.
-4. Split detailed workflow into phase docs under `docs/`.
-5. Create templates for every recurring output.
-6. Define strict project and final package folder shapes.
-7. Require source mapping before raw collection.
-8. Require final validation before publishing.
-9. Keep generated project work ignored by default.
-10. Treat final output as a portable product, not a work folder.
-
-## Design Principle
-
-The engine should make the right workflow easy and the wrong workflow obvious.
-
-A good run should leave behind:
-
-- clean source maps
-- preserved raw evidence
-- readable cleaned docs
-- useful categorized references
-- compact routing indexes
-- honest reports
-- a portable installable skill
-
-A bad run should be easy to detect because files are in the wrong place, sources are not mapped, names are stale, or validation reports are missing.
+If no, it is just notes.
