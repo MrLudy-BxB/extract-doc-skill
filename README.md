@@ -51,3 +51,7 @@ AGENT_KICKSTART.md
 ```
 
 `AGENTS.md` is the short agent entrypoint. `AGENT_KICKSTART.md` has the full workflow.
+
+## Engine Blueprint
+
+Read `ENGINE.md` to understand the core thinking, architecture, and techniques behind this engine.
